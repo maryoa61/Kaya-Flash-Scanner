@@ -56,7 +56,7 @@
                     ⚡ KAYA FLASH SCANNER PRO | فیلترینگ دوگانه پینگ زیر ۱۵۰ms
                 </h1>
                 <p class="text-gray-400 mt-2 text-xs max-w-2xl mx-auto leading-relaxed">
-                    سیستم ارتقایافته اسکن موازی: رنج‌های متغیر و آی‌پی‌های ثابت خود را به صورت همزمان وارد کنید تا سیستم پس از غربالگری پینگ زیر ۱۵۰ms، کانفیگ‌های خروجی را تفکیک و به ورکر شما تزریق کند.
+                    سیستم ارتقایافته اسکن موازی: رنج‌های متغیر و آی‌پی‌های ثابت خود را به صورت همزمان وارد کنید تا سیستم پس از غربالگری، خروجی پایداری را به ورکر دوم (باران) جهت تفکیک بار شلیک کند.
                 </p>
             </div>
         </header>
@@ -104,7 +104,7 @@
                 <div class="bg-gray-900/80 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-gray-800 space-y-4 text-right">
                     <div class="flex justify-between items-center border-b border-gray-800 pb-2">
                         <h2 class="text-sm font-bold text-indigo-400 flex items-center gap-1">
-                            ☁️ همگام‌سازی ابری با ورکر
+                            ☁️ همگام‌سازی ابری با ورکر دوم
                         </h2>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="workerSyncEnable" class="sr-only peer" checked>
@@ -112,9 +112,11 @@
                         </label>
                     </div>
                     <div>
-                        <input type="text" id="workerUrl" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono focus:outline-none focus:border-indigo-500 text-gray-300" placeholder="https://c8b229c4.vvvvvvbb.pages.dev">
+                        <label class="block text-[10px] text-gray-400 mb-1">آدرس ورکر هدف (مخصوص هندل اسکنر):</label>
+                        <input type="text" id="workerUrl" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono focus:outline-none focus:border-indigo-500 text-gray-300" value="https://baran.maroooopk.workers.dev">
                     </div>
                     <div>
+                        <label class="block text-[10px] text-gray-400 mb-1">توکن امنیتی پنل کایا:</label>
                         <input type="password" id="workerToken" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono focus:outline-none focus:border-indigo-500 text-gray-300" value="kayamavy">
                     </div>
                 </div>
@@ -372,14 +374,19 @@
             statusText.className = "text-emerald-400 font-bold";
 
             if (isSyncEnabled && base64Output) {
-                // ارسال مستقیم به ورکر
-                const workerUrl = document.getElementById('workerUrl').value.trim();
+                // ارسال مستقیم و ایمن به ورکر دوم (baran) بر اساس ساختار امنیتی لاگ جدید BPB شما
+                let workerUrl = document.getElementById('workerUrl').value.trim();
                 const workerToken = document.getElementById('workerToken').value.trim();
                 if(workerUrl) {
                     statusText.innerText = "⏳ در حال شلیک خودکار کل دیتا به ورکر کلودفلر...";
+                    workerUrl = workerUrl.replace(/\/$/, "");
                     try {
-                        const response = await fetch(workerUrl.replace(/\/$/, ""), {
-                            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + workerToken },
+                        const response = await fetch(workerUrl, {
+                            method: 'POST', 
+                            headers: { 
+                                'Content-Type': 'application/json', 
+                                'Authorization': 'Bearer ' + workerToken 
+                            },
                             body: JSON.stringify({ configs: base64Output })
                         });
                         if (response.ok) statusText.innerText = "✅ کل دیتا تجمیع و با موفقیت به ورکر متصل شد!";
