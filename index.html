@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اسکنر دوگانه کایا | Kaya Flash Scanner Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body { font-family: Tahoma, Geneva, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8 selection:bg-indigo-500 selection:text-white">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+        
+        <header class="bg-gray-900/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-gray-800 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.05),transparent_50%)]"></div>
+            <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 flex justify-center items-center gap-2">
+                ⚡ KAYA FLASH SCANNER PRO | فیلترینگ دوگانه پینگ زیر ۱۵۰ms
+            </h1>
+            <p class="text-gray-400 mt-2 text-xs max-w-2xl mx-auto leading-relaxed">
+                سیستم ارتقایافته اسکن موازی: رنج‌های متغیر و آی‌پی‌های ثابت خود را به صورت همزمان وارد کنید تا سیستم پس از غربالگری پینگ زیر ۱۵۰ms، کانفیگ‌های خروجی را تفکیک و به ورکر شما تزریق کند.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 space-y-6">
+                
+                <div class="bg-gray-900/80 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-gray-800 space-y-4 text-right">
+                    <h2 class="text-sm font-bold text-cyan-400 border-b border-gray-800 pb-2 flex items-center gap-2">
+                        📥 مخازن ورودی دیتای شبکه
+                    </h2>
+                    
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-400 mb-1">۱. رنج‌های آی‌پی (CIDR مانند 172.64.0.0/13):</label>
+                        <textarea id="inputRanges" rows="4" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono text-gray-300 focus:outline-none focus:border-cyan-500 transition" placeholder="172.64.0.0/13&#10;104.16.0.0/13"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-400 mb-1">۲. لیست آی‌پی‌های تکی و ثابت (یک عدد در هر خط):</label>
+                        <textarea id="inputSingleIps" rows="4" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono text-gray-300 focus:outline-none focus:border-cyan-500 transition" placeholder="104.16.0.1&#10;172.64.0.1&#10;162.158.0.1"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-400 mb-1">کانفیگ مادر (VLESS / TROJAN):</label>
+                        <textarea id="baseConfig" rows="2" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono text-gray-300 focus:outline-none focus:border-cyan-500 transition" placeholder="vless://xxxx@my-domain.com:443..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-400 mb-1">تست از هر رنج:</label>
+                            <input type="number" id="ipsPerRange" value="15" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-xs text-center font-mono focus:outline-none focus:border-cyan-500 text-gray-300">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-400 mb-1">سقف پینگ (ms):</label>
+                            <input type="number" id="maxPingFilter" value="150" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2 text-xs text-center font-mono focus:outline-none focus:border-cyan-500 text-emerald-400 font-bold">
+                        </div>
+                    </div>
+
+                    <button id="startBtn" onclick="startDualScanner()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-gray-950 font-bold py-3 rounded-xl transition duration-200 shadow-lg shadow-cyan-600/10 active:scale-[0.99] text-xs flex justify-center items-center gap-1 cursor-pointer">
+                        ⚡ شروع فیلترینگ و اسکن دوگانه
+                    </button>
+                </div>
+
+                <div class="bg-gray-900/80 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-gray-800 space-y-4 text-right">
+                    <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                        <h2 class="text-sm font-bold text-indigo-400 flex items-center gap-1">
+                            ☁️ همگام‌سازی ابری با ورکر
+                        </h2>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="workerSyncEnable" class="sr-only peer" checked>
+                            <div class="w-8 h-4 bg-gray-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                    <div>
+                        <input type="text" id="workerUrl" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono focus:outline-none focus:border-indigo-500 text-gray-300" placeholder="https://c8b229c4.vvvvvvbb.pages.dev">
+                    </div>
+                    <div>
+                        <input type="password" id="workerToken" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs text-left font-mono focus:outline-none focus:border-indigo-500 text-gray-300" value="kayamavy">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="bg-gray-900/80 backdrop-blur-md p-4 rounded-2xl border border-gray-800 shadow-xl text-right">
+                    <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
+                        <span class="flex flex-wrap items-center gap-2">
+                            وضعیت سامانه: <strong id="statusText" class="text-amber-400 font-medium">آماده برای پایش همزمان</strong>
+                            <span id="operatorBadge" class="hidden bg-blue-950 text-blue-400 px-2 py-0.5 rounded text-[10px] border border-blue-900 font-bold"></span>
+                        </span>
+                        <span id="progressPercent" class="font-mono bg-gray-950 px-2 py-0.5 rounded-md border border-gray-800 text-gray-300">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-950 rounded-full h-1.5 overflow-hidden border border-gray-900">
+                        <div id="progressBar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-full w-0 transition-all duration-150"></div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/80 backdrop-blur-md rounded-2xl border border-gray-800 overflow-hidden shadow-xl text-right">
+                    <div class="p-4 bg-gray-950/40 border-b border-gray-800 flex flex-wrap justify-between items-center gap-2">
+                        <h3 class="text-xs font-bold text-cyan-400 flex items-center gap-1">
+                            📊 ۱. آی‌پی‌های استخراج‌شده از رنج‌ها (زیر ۱۵۰ms)
+                        </h3>
+                        <button onclick="copyTableConfigs('rangeResultsTable')" class="bg-gray-800 hover:bg-gray-700 text-[10px] text-gray-300 px-3 py-1.5 rounded-xl border border-gray-700 transition cursor-pointer font-medium">کپی جمعی این بخش</button>
+                    </div>
+                    <div class="overflow-x-auto max-h-[220px]">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-gray-950 text-gray-400 font-semibold sticky top-0 border-b border-gray-800">
+                                <tr>
+                                    <th class="p-2.5 text-right">آدرس آی‌پی</th>
+                                    <th class="p-2.5 text-center">تأخیر (RTT)</th>
+                                    <th class="p-2.5 text-center">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rangeResultsTable" class="divide-y divide-gray-800/30">
+                                <tr><td colspan="3" class="p-6 text-center text-gray-600">دیتا موجود نیست.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/80 backdrop-blur-md rounded-2xl border border-gray-800 overflow-hidden shadow-xl text-right">
+                    <div class="p-4 bg-gray-950/40 border-b border-gray-800 flex flex-wrap justify-between items-center gap-2">
+                        <h3 class="text-xs font-bold text-teal-400 flex items-center gap-1">
+                            🎯 ۲. وضعیت پینگ آی‌پی‌های تکی و ثابت (زیر ۱۵۰ms)
+                        </h3>
+                        <button onclick="copyTableConfigs('singleResultsTable')" class="bg-gray-800 hover:bg-gray-700 text-[10px] text-gray-300 px-3 py-1.5 rounded-xl border border-gray-700 transition cursor-pointer font-medium">کپی جمعی این بخش</button>
+                    </div>
+                    <div class="overflow-x-auto max-h-[220px]">
+                        <table class="w-full text-right text-xs">
+                            <thead class="bg-gray-950 text-gray-400 font-semibold sticky top-0 border-b border-gray-800">
+                                <tr>
+                                    <th class="p-2.5 text-right">آدرس آی‌پی</th>
+                                    <th class="p-2.5 text-center">تأخیر (RTT)</th>
+                                    <th class="p-2.5 text-center">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="singleResultsTable" class="divide-y divide-gray-800/30">
+                                <tr><td colspan="3" class="p-6 text-center text-gray-600">دیتا موجود نیست.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/80 backdrop-blur-md p-4 rounded-2xl border border-gray-800 shadow-xl space-y-2 text-right">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-semibold text-gray-400">📦 سابسکریپشن تجمیعی نهایی (Base64):</label>
+                        <button onclick="copyAllCombined()" class="text-cyan-400 hover:underline text-xs font-medium cursor-pointer">کپی کل لینک ترکیبی</button>
+                    </div>
+                    <textarea id="subOutput" rows="2" readonly class="w-full bg-gray-950 border border-gray-800 rounded-xl p-2.5 text-xs font-mono text-left text-cyan-400 focus:outline-none" placeholder="مجموع کل کانفیگ‌های هر دو بخش..."></textarea>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_RANGES = ["172.64.0.0/13", "104.16.0.0/13", "162.158.0.0/15"];
+        let rangeCleanList = [];
+        let singleCleanList = [];
+        let detectedOperator = "Unknown Network";
+
+        async function detectOperatorISP() {
+            const badge = document.getElementById('operatorBadge');
+            try {
+                const response = await fetch("http://172.64.0.1/cdn-cgi/trace", { cache: 'no-store' });
+                const text = await response.text();
+                const matchedAsn = text.match(/asno=(\d+)/);
+                if (matchedAsn) {
+                    const asn = matchedAsn[1];
+                    if (["44244", "197207"].includes(asn)) detectedOperator = "Irancell";
+                    else if (["196831", "58224", "43754"].includes(asn)) detectedOperator = "MCI";
+                    else if (["12880", "49100"].includes(asn)) detectedOperator = "Mokhaberat";
+                    else if (["25184", "42337"].includes(asn)) detectedOperator = "Shatel";
+                }
+                badge.innerText = "اپراتور شما: " + detectedOperator;
+                badge.classList.remove('hidden');
+            } catch (e) { badge.innerText = "عدم تشخیص شبکه"; badge.classList.remove('hidden'); }
+        }
+
+        function getRandomIpFromCidr(cidr) {
+            try {
+                const parts = cidr.trim().split('/');
+                const ipOctets = parts[0].split('.').map(Number);
+                const bits = Number(parts[1]);
+                let ipNum = ((ipOctets[0] << 24) >>> 0) + ((ipOctets[1] << 16) >>> 0) + ((ipOctets[2] << 8) >>> 0) + ipOctets[3];
+                const mask = (0xFFFFFFFF << (32 - bits)) >>> 0;
+                const network = (ipNum & mask) >>> 0;
+                const broadcast = (network | ~mask) >>> 0;
+                const randomIpNum = Math.floor(Math.random() * (broadcast - network - 1)) + network + 1;
+                return [(randomIpNum >>> 24) & 0xFF, (randomIpNum >>> 16) & 0xFF, (randomIpNum >>> 8) & 0xFF, randomIpNum & 0xFF].join('.');
+            } catch (e) { return null; }
+        }
+
+        function parseConfigAndReplace(baseConfig, targetIp, ping, sourceTag) {
+            const label = "#KAYA_" + sourceTag + "_" + detectedOperator + "_" + ping + "ms";
+            if(!baseConfig) {
+                return "vless://clean-ip@104.16.0.1:443?encryption=none&security=tls&type=ws&sni=Host.com&host=Host.com" + label;
+            }
+            let mainPart = baseConfig.trim().split('#')[0];
+            try {
+                let url = new URL(mainPart); url.hostname = targetIp; return url.toString() + label;
+            } catch(e) {
+                return mainPart.replace(/@[^:]+:[0-9]+/, "@" + targetIp + ":443") + label;
+            }
+        }
+
+        function renderTable(tableId, dataList) {
+            const tbody = document.getElementById(tableId);
+            if (dataList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-700">موردی یافت نشد.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            dataList.sort((a, b) => a.rtt - b.rtt);
+            
+            dataList.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-900/30 transition border-b border-gray-800/20";
+                tr.innerHTML = `<td class="p-2.5 font-mono font-bold text-cyan-400 text-right">${item.ip}</td>
+                    <td class="p-2.5 text-center text-emerald-400 font-mono font-bold">${item.rtt} ms</td>
+                    <td class="p-2.5 text-center">
+                        <button class="copy-btn bg-gray-800 hover:bg-cyan-600 hover:text-gray-950 text-[10px] px-2 py-1 rounded-lg border border-gray-700 transition cursor-pointer font-semibold">کپی تکی</button>
+                    </td>`;
+                tr.querySelector('.copy-btn').addEventListener('click', () => {
+                    navigator.clipboard.writeText(item.config); alert('کانفیگ آی‌پي کپی شد!');
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function copyTableConfigs(tableId) {
+            const currentList = (tableId === 'rangeResultsTable') ? rangeCleanList : singleCleanList;
+            if(currentList.length === 0) return alert('لیست خالی است.');
+            navigator.clipboard.writeText(currentList.map(i => i.config).join('\n'));
+            alert('تمام کانفیگ‌های این بخش کپی شدند!');
+        }
+
+        function copyAllCombined() {
+            const subOutput = document.getElementById('subOutput').value;
+            if(!subOutput) return alert('دیتایی موجود نیست.');
+            navigator.clipboard.writeText(subOutput);
+            alert('کل دیتای بیس۶۴ ترکیبی کپی شد!');
+        }
+
+        async function startDualScanner() {
+            await detectOperatorISP();
+            const startBtn = document.getElementById('startBtn');
+            const statusText = document.getElementById('statusText');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            const rawRanges = document.getElementById('inputRanges').value.trim();
+            const rawSingles = document.getElementById('inputSingleIps').value.trim();
+            const baseConfig = document.getElementById('baseConfig').value;
+            const maxPing = parseInt(document.getElementById('maxPingFilter').value) || 150;
+            const ipsPerRange = parseInt(document.getElementById('ipsPerRange').value) || 15;
+            const isSyncEnabled = document.getElementById('workerSyncEnable').checked;
+
+            startBtn.disabled = true; startBtn.innerText = "⏳ در حال پردازش موازی...";
+            statusText.innerText = "در حال غربالگری فرکانس‌ها...";
+            
+            document.getElementById('rangeResultsTable').innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-600">در حال تست رنج‌ها...</td></tr>';
+            document.getElementById('singleResultsTable').innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-600">در حال تست آی‌پی‌های تکی...</td></tr>';
+            
+            rangeCleanList = []; singleCleanList = [];
+
+            // ۱. جمع‌آوری از رنج‌ها
+            let rangesArray = rawRanges ? rawRanges.split('\n').filter(r => r.trim() !== '') : DEFAULT_RANGES;
+            let finalTaskQueue = [];
+
+            rangesArray.forEach(range => {
+                let collected = 0;
+                while (collected < ipsPerRange) {
+                    let ip = getRandomIpFromCidr(range);
+                    if (ip && !finalTaskQueue.some(t => t.ip === ip)) {
+                        finalTaskQueue.push({ ip: ip, type: 'Range' }); collected++;
+                    }
+                }
+            });
+
+            // ۲. جمع‌آوری از آی‌پی‌های تکی
+            if (rawSingles) {
+                rawSingles.split('\n').forEach(ip => {
+                    let cleanIp = ip.trim();
+                    if(cleanIp && !finalTaskQueue.some(t => t.ip === cleanIp)) {
+                        finalTaskQueue.push({ ip: cleanIp, type: 'Single' });
+                    }
+                });
+            }
+
+            let totalTasks = finalTaskQueue.length;
+            let doneTasks = 0;
+
+            for (let task of finalTaskQueue) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1500);
+                const startTime = performance.now();
+                let passed = false; let rtt = 0;
+
+                try {
+                    await fetch("http://" + task.ip + "/cdn-cgi/trace", { mode: 'no-cors', signal: controller.signal, cache: 'no-store' });
+                    rtt = Math.round(performance.now() - startTime);
+                    clearTimeout(timeoutId);
+                    if (rtt <= maxPing) passed = true;
+                } catch (e) { clearTimeout(timeoutId); }
+
+                doneTasks++;
+                let percent = Math.round((doneTasks / totalTasks) * 100);
+                progressBar.style.width = percent + '%';
+                progressPercent.innerText = percent + '%';
+
+                if (passed) {
+                    let generatedConfig = parseConfigAndReplace(baseConfig, task.ip, rtt, task.type);
+                    if (task.type === 'Range') {
+                        rangeCleanList.push({ ip: task.ip, rtt: rtt, config: generatedConfig });
+                        renderTable('rangeResultsTable', rangeCleanList);
+                    } else {
+                        singleCleanList.push({ ip: task.ip, rtt: rtt, config: generatedConfig });
+                        renderTable('singleResultsTable', singleCleanList);
+                    }
+                }
+            }
+
+            // ادغام نهایی خروجی‌ها
+            const allConfigsCombined = [...rangeCleanList, ...singleCleanList].map(i => i.config).join('\n');
+            const base64Output = allConfigsCombined ? btoa(allConfigsCombined) : '';
+            document.getElementById('subOutput').value = base64Output;
+
+            startBtn.disabled = false; startBtn.innerText = "⚡ شروع فیلترینگ و اسکن دوگانه";
+            statusText.innerText = `عملیات پایان یافت. رنج‌ها: ${rangeCleanList.length} | تکی: ${singleCleanList.length}`;
+            statusText.className = "text-emerald-400 font-bold";
+
+            if (isSyncEnabled && base64Output) {
+                // ارسال مستقیم به ورکر
+                const workerUrl = document.getElementById('workerUrl').value.trim();
+                const workerToken = document.getElementById('workerToken').value.trim();
+                if(workerUrl) {
+                    statusText.innerText = "⏳ در حال شلیک خودکار کل دیتا به ورکر کلودفلر...";
+                    try {
+                        const response = await fetch(workerUrl.replace(/\/$/, ""), {
+                            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + workerToken },
+                            body: JSON.stringify({ configs: base64Output })
+                        });
+                        if (response.ok) statusText.innerText = "✅ کل دیتا تجمیع و با موفقیت به ورکر متصل شد!";
+                    } catch (e) { statusText.innerText = "❌ خطا در تزریق نهایی: " + e.message; }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
